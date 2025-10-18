@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SupercaliSummarizer AI — Free Bilingual Notes Summarizer</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:20px;color:#111;background:#fff;}
+    textarea{width:100%;height:200px;padding:10px;border:1px solid #ddd;border-radius:10px;}
+    button{padding:10px 14px;border:1px solid #ddd;border-radius:10px;cursor:pointer;margin-top:8px;}
+    button:disabled{opacity:.6;cursor:not-allowed;}
+    .card{border:1px solid #eee;border-radius:12px;padding:14px;margin-top:20px;}
+    .muted{color:#666;font-size:12px;}
+    .out{white-space:pre-wrap;}
+    h1{margin:0 0 8px;}
+  </style>
+</head>
+<body>
+  <h1>SupercaliSummarizer AI</h1>
+  <p class="muted">Paste lecture notes (Korean, English, or mixed). It translates into the dominant language, then summarizes.</p>
+
+  <!-- Removed the endpoint field entirely -->
+
+  <div class="card">
+    <label class="muted">Your Notes</label>
+    <textarea id="input" placeholder="Paste your notes here..."></textarea><br />
+    <button id="go">Summarize</button>
+    <div id="status" class="muted"></div>
+  </div>
+
+  <div id="result" class="card" style="display:none;">
+    <h3>Paragraph Summary</h3>
+    <div id="out-paragraph" class="out"></div>
+    <h3>Key Points</h3>
+    <ul id="out-bullets"></ul>
+  </div>
+
+  <script>
+    // Hard-coded, hidden from the UI
+    const ENDPOINT = 'https://supercali-summarizer.jinnymoon0.workers.dev/summarize';
+
+    const $ = id => document.getElementById(id);
+    const btn = $('go');
+
+    btn.onclick = async () => {
+      const text = $('input').value.trim();
+      if (!text) return setStatus('Please paste some notes.');
+      setStatus('Summarizing...');
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ text, targetLang: 'auto', style: 'auto' })
+        });
+
+        if (!res.ok) {
+          const bodyText = await res.text().catch(()=>'');
+          throw new Error(`HTTP ${res.status} ${res.statusText} — ${bodyText.slice(0,200)}`);
+        }
+
+        const data = await res.json();
+        renderOut(data);
+        setStatus('Done!');
+      } catch (e) {
+        setStatus('Error: ' + (e?.message || e));
+        console.error(e);
+      } finally {
+        btn.disabled = false;
+      }
+    };
+
+    function setStatus(msg){ $('status').textContent = msg; }
+
+    function renderOut(data){
+      $('result').style.display='block';
+      $('out-paragraph').textContent = data.paragraph || '';
+      const ul = $('out-bullets'); ul.innerHTML = '';
+      (data.bullets||[]).forEach(b=>{
+        const li=document.createElement('li'); li.textContent=b; ul.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>

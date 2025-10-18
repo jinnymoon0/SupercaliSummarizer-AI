@@ -1,0 +1,15 @@
+name = "supercali-summarizer"
+main = "src/worker.js"
+compatibility_date = "2024-10-01"
+
+[ai]
+binding = "AI"
+
+[vars]
+ALLOWED_ORIGINS = "https://supercalisummarizer-ai.pages.dev"
+# (later you can comma-separate others)
+# e.g. ALLOWED_ORIGINS = "https://supercalisummarizer-ai.pages.dev,http://localhost:8000"
+
+
+[observability]
+enabled = true
