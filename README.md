@@ -1,4 +1,4 @@
-# 🌈 SupercaliSummarizer AI
+# SupercaliSummarizer AI
 
 **SupercaliSummarizer AI** is a free bilingual lecture-notes summarizer that detects, translates,  
 and summarizes **Korean and English** text automatically using **Cloudflare Workers AI**.  
